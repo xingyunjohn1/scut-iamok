@@ -92,9 +92,10 @@ format_json = "{\"" + download_json.replace("=", "\": \"").replace("\"'", "\"").
 format_dic = json.loads(format_json)
 #print(format_dic)
 del format_dic['sCollegeCode']
-format_dic['sDegreeCode'] = '本科生'
-format_dic['iSex'] = '男'
-del format_dic['sDegreeName']
+format_dic['sDegreeCode'] = format_dic.pop('sDegreeName')
+if format_dic['iSex'] == 1:
+	format_dic['iSex'] = '男'
+else:format_dic['iSex'] = '女'
 del format_dic['sCampusCode']
 del format_dic['sMajorCode']
 del format_dic['sClassCode']
