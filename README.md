@@ -3,4 +3,4 @@ Automatically update your daily health state
 
 This project is fork from @hanwckf . Thanks for his great work!
 
-[View in VSCode Online](github.dev/xingyunjohn1/scut-iamok)
+[View in VSCode Online](//github.dev/xingyunjohn1/scut-iamok)
