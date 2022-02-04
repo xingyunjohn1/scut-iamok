@@ -4,6 +4,7 @@
 
 from Des import *
 import requests
+#import certifi
 import urllib
 from bs4 import BeautifulSoup
 import json,sys,time
@@ -72,6 +73,7 @@ if len(username) == 0 or len(password) == 0:
 	sys.exit(1)
 
 s = requests.session()
+#s.verify = certifi.where()
 s.headers.update(headers)
 req = s.get("https://sso.scut.edu.cn/cas/login?service=https%3A%2F%2Fiamok.scut.edu.cn%2Fcas%2Flogin")
 soup = BeautifulSoup(req.text,'lxml')
@@ -83,12 +85,13 @@ post_data['lt'] = lt
 post_data['rsa'] = strenc(username + password + lt ,'1','2','3')
 post_data['execution'] = soup.find(id='loginForm').find_all('input')[7].attrs['value']
 
-req = s.post("https://sso.scut.edu.cn/cas/login?service=https%3A%2F%2Fiamok.scut.edu.cn%2Fcas%2Flogin", data=post_data)
+req = s.post("https://sso.scut.edu.cn/cas/login?service=https%3A%2F%2Fiamok.scut.edu.cn%2Fcas%2Flogin", data=post_data, verify=False)
 req = s.get("https://enroll.scut.edu.cn/door/health/h5/get")
-
+#print(req.text)
 req_json = json.loads(req.text)
 download_json = req_json['data']['healthRptInfor']['updateSql']
-format_json = "{\"" + download_json.replace("=", "\": \"").replace("\"'", "\"").replace(",", "\",\"").replace("'\",", "\",").replace("'", "\"") + "}"
+format_json = "{\"" + download_json.replace("=", "\": \"").replace("\"'", "\"").replace(",", "\",\"").replace("'\",", "\",").replace("'", "\"") + "\"}"
+#print(format_json)
 format_dic = json.loads(format_json)
 #print(format_dic)
 del format_dic['sCollegeCode']
@@ -163,15 +166,16 @@ list = ['dRptDate',
 'sMajorName',
 'sClassName',
 'iInSchool',
-'dVaccin2Date']
+'dVaccin2Date',
+'iSuperShotType']
 
 upload_data = ''
 for key in list:
 	format_dic[key] = urllib.parse.quote(str(format_dic[key]))
 	if format_dic[key] == "dRptDate":
 		format_dic[key] = time.strftime("%Y-%m-%d", time.localtime())
-	elif format_dic[key] == "dVaccin1Date":
-		format_dic[key] = dVaccin1Date
+	elif format_dic[key] == "dVaccin1Date": # '-' in date code should not be 
+		format_dic[key] = dVaccin1Date  # url encoded
 	elif format_dic[key] == "dVaccin2Date":
 		format_dic[key] == dVaccin2Date
 	upload_data = "{}&{}={}".format(upload_data, key, format_dic[key])
